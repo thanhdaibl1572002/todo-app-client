@@ -1,95 +1,88 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client'
+import { FC, useEffect, useState, KeyboardEvent } from 'react'
+import axios from 'axios'
+import styles from '@/styles/pages/home.module.sass'
+import TodoItem from '@/components/TodoItem'
+import { ITodo } from '@/interfaces/todo'
 
-export default function Home() {
+const Home: FC = () => {
+  const [newTodo, setNewTodo] = useState<ITodo>({ text: '', completed: false, createdAt: new Date()})
+  const [todos, setTodos] = useState<ITodo[]>([])
+
+  const API_BASE_URL = 'https://todo-app-server-22po.onrender.com'
+
+  useEffect(() => {
+    getTodos()
+  }, [])
+
+  const getTodos = async (): Promise<void> => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/getall`)
+      const data = response.data.data
+      setTodos(data)
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách todos', error)
+    }
+  }
+
+  const handleCreateTodo = async (): Promise<void> => {
+    if (newTodo.text.trim()) {
+      await axios.post(`${API_BASE_URL}/create`, newTodo)
+      setNewTodo({...newTodo, text: ''})
+      getTodos()
+    }
+  }
+
+  const handleDeleteTodo = async (todo: ITodo): Promise<void> => {
+    if (todo._id) {
+      await axios.delete(`${API_BASE_URL}/delete/${todo._id}`)
+      getTodos()
+    }
+  }
+
+  const handleUpdateTodo = async (todo: ITodo): Promise<void> => {
+    if (todo.text.trim()) {
+      await axios.put(`${API_BASE_URL}/update`, todo)
+      getTodos()
+    }
+  }
+  
+  const handleCompleteTodo = async (todo: ITodo): Promise<void> => {
+    await axios.put(`${API_BASE_URL}/update`, todo)
+    getTodos()
+  }
+  
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+    <div className={styles._container}>
+      <h1 className={styles._title}>Todo App</h1>
+      <div className={styles._form}>
+        <input
+          type="text"
+          placeholder="Add a new todo"
+          value={newTodo.text}
+          onChange={(e) => setNewTodo({...newTodo, text: e.target.value})}
+          onKeyUp={(event: KeyboardEvent<HTMLInputElement>) => event.key === 'Enter' && handleCreateTodo()}
         />
+        <button onClick={handleCreateTodo}>Add</button>
       </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className={styles._list}>
+        {todos.map(todo => (
+          <TodoItem 
+            key={todo._id} 
+            todo={{
+              _id: todo._id,
+              text: todo.text,
+              completed: todo.completed,
+              createdAt: todo.createdAt
+            }}
+            onUpdate={handleUpdateTodo}
+            onDelete={handleDeleteTodo}
+            onComplete={handleCompleteTodo}
+          />
+        ))}
       </div>
-    </main>
+    </div>
   )
 }
+
+export default Home

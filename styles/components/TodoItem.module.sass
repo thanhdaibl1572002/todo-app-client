@@ -1,0 +1,61 @@
+._container
+    width: 100%
+
+    ._todo
+        display: flex
+        align-items: center
+        justify-content: space-between
+        width: 100%
+        column-gap: 10px
+        font-size: 18px
+        background: white
+        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.1)
+        padding: 10px 20px
+
+        ._edit
+            width: calc( 100% - 30px )
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2)
+            font-size: 15px
+
+            &::placeholder
+                font-size: 13.5px
+
+        ._complete
+            width: 20px
+            height: 20px
+            cursor: pointer
+            color: white
+            border: none
+            border-radius: 2px
+            background: green
+
+        ._text
+            display: flex
+            align-items: center
+            column-gap: 10px
+            font-size: 15px
+
+            ._created__at
+                font-size: 13px
+                font-weight: 300
+
+        ._action
+            align-items: center
+            column-gap: 5px
+
+            button
+                width: 20px
+                height: 20px
+                cursor: pointer
+                color: white
+                border: none
+                border-radius: 2px
+
+            ._delete
+                background: crimson
+
+            ._complete
+                background: green
+
+            ._edit
+                background: yellow
