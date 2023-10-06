@@ -9,7 +9,7 @@ const Home: FC = () => {
   const [newTodo, setNewTodo] = useState<ITodo>({ text: '', completed: false, createdAt: new Date()})
   const [todos, setTodos] = useState<ITodo[]>([])
 
-  const API_BASE_URL = 'https://todo-app-server-avw1.onrender.com'
+  const API_BASE_URL = 'https://todo-app-server-avw1.onrender.com/api/todos'
 
   useEffect(() => {
     getTodos()
